@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>龍</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #1a1a1a; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let mouse = { x: 0, y: 0 };
+    const segments = [];
+    const segmentCount = 30; // 龍的身長（節數）
+    const segmentLen = 15;   // 每節長度
+    const radius = 10;       // 龍的粗度
+
+    // 初始化龍的身體
+    for (let i = 0; i < segmentCount; i++) {
+        segments.push({ x: 0, y: 0 });
+    }
+
+    // 監聽鼠標移動
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+    });
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+    window.dispatchEvent(new Event('resize'));
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 第一節（頭部）追隨鼠標
+        segments[0].x = mouse.x;
+        segments[0].y = mouse.y;
+
+        // 後面的每一節追隨前一節
+        for (let i = 1; i < segmentCount; i++) {
+            const dx = segments[i-1].x - segments[i].x;
+            const dy = segments[i-1].y - segments[i].y;
+            const angle = Math.atan2(dy, dx); // 計算角度
+            
+            // 關鍵：保持固定距離
+            segments[i].x = segments[i-1].x - Math.cos(angle) * segmentLen;
+            segments[i].y = segments[i-1].y - Math.sin(angle) * segmentLen;
+
+            // 繪製每一節
+            ctx.beginPath();
+            ctx.arc(segments[i].x, segments[i].y, radius * (1 - i/segmentCount + 0.5), 0, Math.PI * 2);
+            ctx.fillStyle = `hsl(${200 + i * 2}, 80%, 60%)`; // 漸層色
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+</script>
+</body>
+</html>
