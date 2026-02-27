@@ -1,31 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-    <title>龍</title>
+    <meta charset="UTF-8">
+    <title>機械龍骨架控制系統 - gr</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #1a1a1a; }
+        body { margin: 0; overflow: hidden; background: #0a0a0a; }
         canvas { display: block; }
+        #info {
+            position: absolute; top: 10px; left: 10px;
+            color: #555; font-family: monospace; pointer-events: none;
+        }
     </style>
 </head>
 <body>
+    <div id="info">SYSTEM: DRAGON_IK_CORE_ACTIVE <br>USER: gr</div>
     <canvas id="canvas"></canvas>
 
 <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    let mouse = { x: 0, y: 0 };
+    let mouse = { x: window.innerWidth/2, y: window.innerHeight/2 };
     const segments = [];
-    const segmentCount = 30; // 龍的身長（節數）
-    const segmentLen = 15;   // 每節長度
-    const radius = 10;       // 龍的粗度
-
-    // 初始化龍的身體
+    const segmentCount = 40;  // 節數增加，動起來更順滑
+    const segmentLen = 12;    // 每節長度
+    
+    // 初始化骨架座標
     for (let i = 0; i < segmentCount; i++) {
-        segments.push({ x: 0, y: 0 });
+        segments.push({ x: mouse.x, y: mouse.y, angle: 0 });
     }
 
-    // 監聽鼠標移動
     window.addEventListener('mousemove', (e) => {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
@@ -40,26 +44,48 @@
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 第一節（頭部）追隨鼠標
-        segments[0].x = mouse.x;
-        segments[0].y = mouse.y;
+        // 1. 計算頭部位置（平滑跟隨）
+        segments[0].x += (mouse.x - segments[0].x) * 0.2;
+        segments[0].y += (mouse.y - segments[0].y) * 0.2;
 
-        // 後面的每一節追隨前一節
+        // 2. 核心邏輯：反向動力學 (IK) 模擬
         for (let i = 1; i < segmentCount; i++) {
             const dx = segments[i-1].x - segments[i].x;
             const dy = segments[i-1].y - segments[i].y;
-            const angle = Math.atan2(dy, dx); // 計算角度
-            
-            // 關鍵：保持固定距離
+            const angle = Math.atan2(dy, dx);
+            segments[i].angle = angle; // 儲存角度供繪圖使用
+
+            // 保持物理間距
             segments[i].x = segments[i-1].x - Math.cos(angle) * segmentLen;
             segments[i].y = segments[i-1].y - Math.sin(angle) * segmentLen;
+        }
 
-            // 繪製每一節
+        // 3. 繪圖：畫出肋骨與脊椎
+        for (let i = 0; i < segmentCount; i++) {
+            const s = segments[i];
+            const ribLen = 20 * (1 - i / segmentCount); // 肋骨由頭到尾變短
+
+            ctx.save();
+            ctx.translate(s.x, s.y);
+            ctx.rotate(s.angle);
+
+            // 設定骨架顏色（白灰漸層感）
+            ctx.strokeStyle = `rgba(255, 255, 255, ${1 - i/segmentCount + 0.2})`;
+            ctx.lineWidth = 2;
+
+            // 畫肋骨（橫向線段）
             ctx.beginPath();
-            ctx.arc(segments[i].x, segments[i].y, radius * (1 - i/segmentCount + 0.5), 0, Math.PI * 2);
-            ctx.fillStyle = `hsl(${200 + i * 2}, 80%, 60%)`; // 漸層色
+            ctx.moveTo(0, -ribLen);
+            ctx.lineTo(0, ribLen);
+            ctx.stroke();
+
+            // 畫脊椎連接點
+            ctx.fillStyle = "#fff";
+            ctx.beginPath();
+            ctx.arc(0, 0, 2, 0, Math.PI * 2);
             ctx.fill();
-            ctx.closePath();
+
+            ctx.restore();
         }
 
         requestAnimationFrame(animate);
