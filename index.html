@@ -9,29 +9,30 @@
    <title>這是個茶壺而已</title> 
    <link href="//www.gstatic.com/teapot/teapot.min.css" rel="stylesheet" nonce="2AagoqYOv-GyugS0iMP1iQ">
    <style>
-         /* 強制將網頁最外層設為深藍黑色 */
-         html, body {
-           background-color: #00051c !important;
+        /* 1. 只針對最底層染色，保持其餘元素佈局不動 */
+        html, body {
+            background-color: #00051c !important; 
             color: #ffffff !important;
-            margin: 0;
-            padding: 0;
             min-height: 100vh;
-         }
+        }
 
-         /* 關鍵：讓所有內層容器變透明，透出最底層的深藍黑色 */
-         * {
+        /* 2. 精準修正：只讓 body 裡原本那個帶有背景色的容器變透明 */
+        /* Google 的茶壺頁面中，這幾層通常是藍色方塊的來源 */
+        body, #teaset, #teacup, p {
             background-color: transparent !important;
-         }
+            background-image: none !important; 
+        }
 
-         /* 針對文字進行微調，確保在深色背景下清晰 */
-         ins {
+        /* 3. 恢復茶壺機器人的背景圖（因為剛才被 * 透明掉了） */
+        #teaset:before, #teabot, #teabot:after, #teabot:before, #teacup:after, #teacup:before {
+            display: block; /* 確保它們顯示 */
+        }
+
+        /* 4. 微調文字顏色 */
+        ins {
             color: #aaaaaa !important;
             text-decoration: none;
-         }
-
-         a {
-            color: #4db8ff !important; /* 讓連結顏色亮一點 */
-         }
+        }
     </style>
 </head>
 <body>
