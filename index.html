@@ -9,12 +9,36 @@
    <title>這是個茶壺而已</title> 
    <link href="//www.gstatic.com/teapot/teapot.min.css" rel="stylesheet" nonce="2AagoqYOv-GyugS0iMP1iQ">
    <style>
-   body {
-      background-color: #00051c !important; /* 強制背景為黑色 */
-      color: #ffffff !important;        /* 強制文字為白色，不然背景變黑文字會看不見 */ 
-      background-color: transparent !important;   
-   }
-</style> 
+         /* 強制將網頁最外層設為深藍黑色 */
+         html, body {
+           background-color: #00051c !important;
+            color: #ffffff !important;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+         }
+
+         /* 關鍵：讓所有內層容器變透明，透出最底層的深藍黑色 */
+         * {
+            background-color: transparent !important;
+            border-color: rgba(255, 255, 255, 0.1) !important; /* 讓邊框不要太突兀 */
+         }
+
+         /* 針對文字進行微調，確保在深色背景下清晰 */
+         ins {
+            color: #aaaaaa !important;
+            text-decoration: none;
+         }
+
+         a {
+            color: #4db8ff !important; /* 讓連結顏色亮一點 */
+         }
+
+         /* 修正 Google Logo 在深底上的顯示 */
+         #logo {
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+         }
+    </style>
 </head>
 <body>
    <a><span aria-label="Google" id="logo"></span></a> 
